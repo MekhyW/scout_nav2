@@ -30,7 +30,7 @@ The following dependencies are required to run the simulation and the navigation
 The dependencies can be installed using the following command:
 
 ```bash
-$ sudo apt install ros-<$ros-distro>-<dependency-name>
+sudo apt install ros-humble-<dependency-name>
 ```
 
 ### Building
@@ -39,8 +39,8 @@ The compilation of the packages is required to run the simulation and the naviga
 using the following command:
 
 ```bash
-$ source /opt/ros/<ros-distro>/setup.bash
-$ colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
+source /opt/ros/humble/setup.bash
+colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
 ```
 
 Be aware that the compilation of the `spatio-temporal-voxel-layer` package can take a long time and consume a lot of memory, due to
@@ -48,7 +48,7 @@ its dependecy on the `openvdb` library.
 If the compilation takes up too much memory, it is possible to limit the number of cores used by the compiler with the following command:
 
 ```bash
-$ MAKEFLAGS="-j4" colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
+MAKEFLAGS="-j4" colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
 ```
 
 Where the number 4 is the number of cores used by the compiler.
@@ -79,9 +79,12 @@ The maps created by the SLAM toolbox are saved in the `rm_navigation/maps` folde
 To launch the simulation of the robot in Gazebo, along with NAV2, run the following command:
 
 ```bash
-$ ros2 launch robot_description simulate_control_gazebo.launch.py lidar_type:=<3d|2d> rviz:=<true|false>
+ros2 launch robot_description simulate_control_gazebo.launch.py lidar_type:=2d rviz:=false
+```
 
-$ ros2 launch rm_navigation nav2.launch.py simulation:=true slam:=<true|false> localization:=<amcl|slam_toolbox>
+```bash
+chmod 0700  /run/user/1000/
+ros2 launch rm_navigation nav2.launch.py simulation:=true slam:=true localization:=amcl
 ```
 
 The first command will launch the simulation of the robot in Gazebo, with the 3D lidar sensor mounted on top, and the RViz GUI (optional).
