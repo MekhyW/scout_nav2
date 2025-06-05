@@ -45,8 +45,8 @@ def generate_launch_description():
 def launch_setup(context, *args, **kwargs):
     # launch nav2 with convenient prepared launch files
     # using specialized version of nav2 bringup to account for collision monitor parameters
-    nav2_bringup_dir = get_package_share_directory("nav2_bringup_custom")
-    nav2_launch_file = os.path.join(nav2_bringup_dir, "launch", "bringup_launch.py")
+    rm_localization_dir = get_package_share_directory("rm_localization_custom")
+    nav2_launch_file = os.path.join(rm_localization_dir, "launch", "bringup_launch.py")
     rm_navigation_dir = get_package_share_directory("rm_navigation")
 
     slam = LaunchConfiguration("slam").perform(context).lower()
