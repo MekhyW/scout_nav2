@@ -54,7 +54,7 @@ Visualization Manager:
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /robot_description
+        Value: /scout/robot_description
       Enabled: true
       Links:
         All Links Enabled: true
@@ -682,24 +682,6 @@ Visualization Manager:
     Current:
       Class: rviz_default_plugins/TF
   Value: true
-  Views:
-    Current:
-      Angle: -1.5699995756149292
-      Class: rviz_default_plugins/TopDownOrtho
-      Enable Stereo Rendering:
-        Stereo Eye Separation: 0.05999999865889549
-        Stereo Focal Distance: 1
-        Swap Stereo Eyes: false
-        Value: false
-      Invert Z Axis: false
-      Name: Current View
-      Near Clip Distance: 0.009999999776482582
-      Scale: 55.54925537109375
-      Target Frame: <Fixed Frame>
-      Value: TopDownOrtho (rviz_default_plugins)
-      X: 0
-      Y: 0
-    Saved: ~
 Window Geometry:
   Displays:
     collapsed: false

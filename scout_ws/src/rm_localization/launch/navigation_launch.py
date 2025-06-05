@@ -49,7 +49,6 @@ def generate_launch_description():
         "bt_navigator",
         "waypoint_follower",
         "velocity_smoother",
-        "collision_monitor",  # NOTE: added collision monitor node
     ]
 
     # Map fully qualified names to relative ones so the node's namespace can be prepended.

@@ -46,81 +46,74 @@ amcl:
             yaw: 0.0
 
 bt_navigator:
-    ros__parameters:
-        global_frame: map
-        robot_base_frame: mobile_robot_base_link
-        odom_topic: /odometry
-        bt_loop_duration: 10 # ms
-        default_server_timeout: 20 # ms
-        wait_for_server_timeout: 1000 # ms
-        action_server_result_timeout: 60.0 # s
-        transform_tolerance: 0.1 # s
-        navigators: ["navigate_to_pose", "navigate_through_poses"]
-        navigate_to_pose:
-            plugin: "nav2_bt_navigator/NavigateToPoseNavigator"
-        navigate_through_poses:
-            plugin: "nav2_bt_navigator/NavigateThroughPosesNavigator"
-        # default behavior tree definitions
-        #default_nav_to_pose_bt_xml: $(find-pkg-share nav2_bt_navigator)/behavior_trees/navigate_to_pose_w_replanning_and_recovery.xml
-        default_nav_through_poses_bt_xml: $(find-pkg-share nav2_bt_navigator)/behavior_trees/navigate_through_poses_w_replanning_and_recovery.xml
-        # custom behavior tree definition
-        default_nav_to_pose_bt_xml: $(find-pkg-share rm_navigation)/params/bt_nav2pose.xml
-        
-        plugin_lib_names:
-            - nav2_compute_path_to_pose_action_bt_node
-            - nav2_compute_path_through_poses_action_bt_node
-            - nav2_smooth_path_action_bt_node
-            - nav2_follow_path_action_bt_node
-            - nav2_spin_action_bt_node
-            - nav2_wait_action_bt_node
-            - nav2_assisted_teleop_action_bt_node
-            - nav2_back_up_action_bt_node
-            - nav2_drive_on_heading_bt_node
-            - nav2_clear_costmap_service_bt_node
-            - nav2_is_stuck_condition_bt_node
-            - nav2_goal_reached_condition_bt_node
-            - nav2_goal_updated_condition_bt_node
-            - nav2_globally_updated_goal_condition_bt_node
-            - nav2_is_path_valid_condition_bt_node
-            - nav2_are_error_codes_active_condition_bt_node
-            - nav2_would_a_controller_recovery_help_condition_bt_node
-            - nav2_would_a_planner_recovery_help_condition_bt_node
-            - nav2_would_a_smoother_recovery_help_condition_bt_node
-            - nav2_initial_pose_received_condition_bt_node
-            - nav2_reinitialize_global_localization_service_bt_node
-            - nav2_rate_controller_bt_node
-            - nav2_distance_controller_bt_node
-            - nav2_speed_controller_bt_node
-            - nav2_truncate_path_action_bt_node
-            - nav2_truncate_path_local_action_bt_node
-            - nav2_goal_updater_node_bt_node
-            - nav2_recovery_node_bt_node
-            - nav2_pipeline_sequence_bt_node
-            - nav2_round_robin_node_bt_node
-            - nav2_transform_available_condition_bt_node
-            - nav2_time_expired_condition_bt_node
-            - nav2_path_expiring_timer_condition
-            - nav2_distance_traveled_condition_bt_node
-            - nav2_single_trigger_bt_node
-            - nav2_goal_updated_controller_bt_node
-            - nav2_is_battery_low_condition_bt_node
-            - nav2_navigate_through_poses_action_bt_node
-            - nav2_navigate_to_pose_action_bt_node
-            - nav2_remove_passed_goals_action_bt_node
-            - nav2_planner_selector_bt_node
-            - nav2_controller_selector_bt_node
-            - nav2_goal_checker_selector_bt_node
-            - nav2_controller_cancel_bt_node
-            - nav2_path_longer_on_approach_bt_node
-            - nav2_wait_cancel_bt_node
-            - nav2_spin_cancel_bt_node
-            - nav2_back_up_cancel_bt_node
-            - nav2_assisted_teleop_cancel_bt_node
-            - nav2_drive_on_heading_cancel_bt_node
-            - nav2_is_battery_charging_condition_bt_node
-        error_code_names:
-            - compute_path_error_code
-            - follow_path_error_code
+  ros__parameters:
+    use_sim_time: True
+    global_frame: map
+    robot_base_frame: base_link
+    odom_topic: /odom
+    bt_loop_duration: 10
+    default_server_timeout: 20
+    wait_for_service_timeout: 1000
+    # 'default_nav_through_poses_bt_xml' and 'default_nav_to_pose_bt_xml' are use defaults:
+    # nav2_bt_navigator/navigate_to_pose_w_replanning_and_recovery.xml
+    # nav2_bt_navigator/navigate_through_poses_w_replanning_and_recovery.xml
+    # They can be set here or via a RewrittenYaml remap from a parent launch file to Nav2.
+    plugin_lib_names:
+      - nav2_compute_path_to_pose_action_bt_node
+      - nav2_compute_path_through_poses_action_bt_node
+      - nav2_smooth_path_action_bt_node
+      - nav2_follow_path_action_bt_node
+      - nav2_spin_action_bt_node
+      - nav2_wait_action_bt_node
+      - nav2_assisted_teleop_action_bt_node
+      - nav2_back_up_action_bt_node
+      - nav2_drive_on_heading_bt_node
+      - nav2_clear_costmap_service_bt_node
+      - nav2_is_stuck_condition_bt_node
+      - nav2_goal_reached_condition_bt_node
+      - nav2_goal_updated_condition_bt_node
+      - nav2_globally_updated_goal_condition_bt_node
+      - nav2_is_path_valid_condition_bt_node
+      - nav2_initial_pose_received_condition_bt_node
+      - nav2_reinitialize_global_localization_service_bt_node
+      - nav2_rate_controller_bt_node
+      - nav2_distance_controller_bt_node
+      - nav2_speed_controller_bt_node
+      - nav2_truncate_path_action_bt_node
+      - nav2_truncate_path_local_action_bt_node
+      - nav2_goal_updater_node_bt_node
+      - nav2_recovery_node_bt_node
+      - nav2_pipeline_sequence_bt_node
+      - nav2_round_robin_node_bt_node
+      - nav2_transform_available_condition_bt_node
+      - nav2_time_expired_condition_bt_node
+      - nav2_path_expiring_timer_condition
+      - nav2_distance_traveled_condition_bt_node
+      - nav2_single_trigger_bt_node
+      - nav2_goal_updated_controller_bt_node
+      - nav2_is_battery_low_condition_bt_node
+      - nav2_navigate_through_poses_action_bt_node
+      - nav2_navigate_to_pose_action_bt_node
+      - nav2_remove_passed_goals_action_bt_node
+      - nav2_planner_selector_bt_node
+      - nav2_controller_selector_bt_node
+      - nav2_goal_checker_selector_bt_node
+      - nav2_controller_cancel_bt_node
+      - nav2_path_longer_on_approach_bt_node
+      - nav2_wait_cancel_bt_node
+      - nav2_spin_cancel_bt_node
+      - nav2_back_up_cancel_bt_node
+      - nav2_assisted_teleop_cancel_bt_node
+      - nav2_drive_on_heading_cancel_bt_node
+      - nav2_is_battery_charging_condition_bt_node
+
+bt_navigator_navigate_through_poses_rclcpp_node:
+  ros__parameters:
+    use_sim_time: True
+
+bt_navigator_navigate_to_pose_rclcpp_node:
+  ros__parameters:
+    use_sim_time: True
 
 controller_server:
     ros__parameters:
@@ -564,58 +557,3 @@ slam_toolbox:
         minimum_angle_penalty: 0.9
         minimum_distance_penalty: 0.5
         use_response_expansion: true
-
-collision_monitor:
-    ros__parameters:
-        base_frame_id: "base_footprint"
-        odom_frame_id: "odom"
-        cmd_vel_in_topic: "cmd_vel_smoothed"
-        cmd_vel_out_topic: "cmd_vel"
-        state_topic: "collision_monitor_state"
-        transform_tolerance: 0.5
-        source_timeout: 5.0
-        base_shift_correction: True
-        stop_pub_timeout: 2.0
-        use_realtime_priority: false
-        
-        polygons: ["FootprintStop", "FootprintSlowdown", "FootprintApproach"]
-        FootprintStop:
-            # Define a zone and a point threshold. If min_points or more obstacle points appear inside this area, stop the robot until the obstacles will disappear.
-            type: "polygon"
-            points: [0.48, 0.38, 0.48, -0.38, -0.48, -0.38, -0.48, 0.38]
-            action_type: "stop"
-            min_points: 4 # max_points: 3 for Humble
-            visualize: True
-            polygon_pub_topic: "/polygon_stop"
-            enabled: True
-
-        FootprintSlowdown:
-            # Define a zone around the robot and slow the maximum speed for a slowdown_ratio, if min_points or more points will appear inside the area.
-            type: "polygon"
-            points: [0.65, 0.55, 0.65, -0.55, -0.65, -0.55, -0.65, 0.55]
-            action_type: "slowdown"
-            min_points: 4 # max_points: 3 for Humble
-            slowdown_ratio: 0.5
-            visualize: True
-            polygon_pub_topic: "/polygon_slowdown"
-            enabled: True
-
-        FootprintApproach:
-            # Using the current robot speed, estimate the time to collision to sensor data. The robot will slow such that it is now at least time_before_collision seconds to collision.
-            type: "polygon"
-            action_type: "approach"
-            points: [0.70, 0.60, 0.70, -0.60, -0.70, -0.60, -0.70, 0.60]
-            time_before_collision: 2.0
-            simulation_time_step: 0.02
-            min_points: 6 # max_points: 5 for Humble
-            visualize: True
-            enabled: False
-            
-        observation_sources: ["scan"]
-        scan:
-            source_timeout: 0.2
-            type: "scan"
-            topic: "/laser_scan"
-            min_height: 0.0
-            max_height: 2.0
-            enabled: True

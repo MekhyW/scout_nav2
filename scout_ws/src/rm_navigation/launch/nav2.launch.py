@@ -1,13 +1,12 @@
 import os
 from ament_index_python.packages import get_package_share_directory
-
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
 from launch.actions import OpaqueFunction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
-from launch.substitutions import LaunchConfiguration, PythonExpression, TextSubstitution
-from launch.conditions import IfCondition, UnlessCondition
+from launch.substitutions import LaunchConfiguration, PythonExpression
+from launch.conditions import IfCondition
 
 
 def generate_launch_description():
@@ -43,52 +42,13 @@ def generate_launch_description():
 
 
 def launch_setup(context, *args, **kwargs):
-    # launch nav2 with convenient prepared launch files
-    # using specialized version of nav2 bringup to account for collision monitor parameters
     rm_localization_dir = get_package_share_directory("rm_localization_custom")
     nav2_launch_file = os.path.join(rm_localization_dir, "launch", "bringup_launch.py")
     rm_navigation_dir = get_package_share_directory("rm_navigation")
 
-    slam = LaunchConfiguration("slam").perform(context).lower()
-    simulation = LaunchConfiguration("simulation").perform(context).lower()
-
-    # full configuration parameters file
-    # choose map to load depending on test environment
-    if simulation == "true":
-        # Gazebo simulation
-        map_file = "warehouse/map_slam_v2.yaml"
-        use_sim_time = "true"
-
-        if slam == "true":
-            # SLAM for localization and mapping
-            params_file_name = "sim_lidar3d_amcl.yaml"
-            # ignore localization argument
-        else:
-            # performing localization and navigation
-            if (LaunchConfiguration("localization").perform(context) == "slam_toolbox"):
-                # SLAM toolbox localization
-                params_file_name = "sim_slam_localization.yaml"
-            else:
-                # AMCL localization
-                params_file_name = "sim_lidar3d_amcl.yaml"
-
-    else:
-        # Real robot
-        map_file = "airlab/map_lidar3d_v3.yaml"
-        use_sim_time = "false"
-
-        if slam == "true":
-            # SLAM for localization and mapping
-            params_file_name = "scout_amcl.yaml"
-            # ignore localization argument
-        else:
-            # performing localization and navigation
-            if (LaunchConfiguration("localization").perform(context) == "slam_toolbox"):
-                # SLAM toolbox localization
-                params_file_name = "scout_slam_localization.yaml"
-            else:
-                # AMCL localization
-                params_file_name = "scout_amcl.yaml"
+    map_file = "warehouse/map_slam_v2.yaml"
+    use_sim_time = "true"
+    params_file_name = "sim_lidar2d_amcl.yaml"
 
     # NAV2 parameters file path
     nav2_params_file = os.path.join(rm_navigation_dir, "params", params_file_name)
@@ -103,6 +63,7 @@ def launch_setup(context, *args, **kwargs):
             "params_file": nav2_params_file,  # full configuration parameters
             "slam": "True",  # slam activated
             "map": "",  # no map,
+            'use_collision_monitor': 'false',
         }.items(),
         condition=IfCondition(PythonExpression(["'" , LaunchConfiguration("slam"), "' == 'true'"]))
     )
