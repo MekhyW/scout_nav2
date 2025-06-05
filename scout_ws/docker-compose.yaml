@@ -1,0 +1,18 @@
+services:
+    base:
+        build: .
+        stdin_open: true
+        tty: true
+        network_mode: host
+        ipc: host
+        privileged: true
+
+    talker:
+        extends: base
+        container_name: ros2_talker
+        command: ["bash", "-c", "source /opt/ros/foxy/setup.bash && ros2 run demo_nodes_cpp talker"]
+
+    listener:
+        extends: base
+        container_name: ros2_listener
+        command: ["bash", "-c", "source /opt/ros/foxy/setup.bash && ros2 run demo_nodes_cpp listener"]
