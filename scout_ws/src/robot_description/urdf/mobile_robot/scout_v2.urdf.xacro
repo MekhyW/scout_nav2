@@ -42,7 +42,7 @@
 				<origin xyz="0 0 0" rpy="0 0 0" />
 				<geometry>
 					<mesh
-						filename="file://$(find agilex_scout)/meshes/mobile_robot/mobile_robot_base_link.dae" />
+						filename="file://$(find robot_description)/meshes/mobile_robot/mobile_robot_base_link.dae" />
 				</geometry>
 			</visual>
 			<collision>
@@ -77,8 +77,8 @@
 		</joint>
 
 		<!-- Scout wheel macros -->
-		<xacro:include filename="$(find agilex_scout)/urdf/mobile_robot/scout_wheel_type1.xacro" />
-		<xacro:include filename="$(find agilex_scout)/urdf/mobile_robot/scout_wheel_type2.xacro" />
+		<xacro:include filename="$(find robot_description)/urdf/mobile_robot/scout_wheel_type1.xacro" />
+		<xacro:include filename="$(find robot_description)/urdf/mobile_robot/scout_wheel_type2.xacro" />
 		<!-- wheel labeled from 0 to 3, conter-clockwise, starting from front right wheel -->
 		<!-- motor 1 and 2 (left side) are mechanically installed in a reversed direction -->
 		<xacro:scout_wheel_type1 wheel_prefix="front_right" x="${wheelbase/2}" y="${-track/2}"
@@ -112,7 +112,7 @@
 
 		<!-- Gazebo definitions  -->
 		<xacro:if value="${load_gazebo}">
-			<xacro:include filename="$(find agilex_scout)/urdf/mobile_robot/scout_v2.gazebo" />
+			<xacro:include filename="$(find robot_description)/urdf/mobile_robot/scout_v2.gazebo" />
 		</xacro:if>
 
 	</xacro:macro>

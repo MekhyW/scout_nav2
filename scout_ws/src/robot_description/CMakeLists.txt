@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(agilex_scout)
+project(robot_description)
 
 # -------------- ROS2 cmake standard declarations
 if(NOT CMAKE_CXX_STANDARD)

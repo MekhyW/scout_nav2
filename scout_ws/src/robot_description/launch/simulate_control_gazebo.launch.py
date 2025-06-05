@@ -61,7 +61,7 @@ def generate_launch_description():
 
 	# bridge configuration file
 	ros2_gz_bridge_file = os.path.join(
-		get_package_share_directory("agilex_scout"),
+		get_package_share_directory("robot_description"),
 		"config",
 		"ros2_gz_bridge_config.yaml",
 	)
@@ -82,7 +82,7 @@ def generate_launch_description():
 
 	# Scout robot description XACRO + gazebo definitions
 	scout_description_file = os.path.join(
-		get_package_share_directory("agilex_scout"),
+		get_package_share_directory("robot_description"),
 		"urdf",
 		"robot.urdf.xacro"
 	)
@@ -142,7 +142,7 @@ def generate_launch_description():
 	)
 
 	rviz2_file = os.path.join(
-		get_package_share_directory("agilex_scout"),
+		get_package_share_directory("robot_description"),
 		"rviz",
 		"model_display.rviz",
 	)

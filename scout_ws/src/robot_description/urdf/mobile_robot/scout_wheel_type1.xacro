@@ -25,9 +25,10 @@ OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTE
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
+
 <robot xmlns:xacro="http://ros.org/wiki/xacro" name="scout_v2">
 
-	<xacro:macro name="scout_wheel_type2" params="wheel_prefix x y z phi">
+	<xacro:macro name="scout_wheel_type1" params="wheel_prefix x y z phi">
 
 		<link name="${wheel_prefix}_wheel_link">
 			<inertial>
@@ -38,7 +39,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 			<visual>
 				<origin xyz="0 0 0" rpy="0 0 0" />
 				<geometry>
-					<mesh filename="file://$(find agilex_scout)/meshes/mobile_robot/wheel_type2.dae" />
+					<mesh filename="file://$(find robot_description)/meshes/mobile_robot/wheel_type1.dae" />
 				</geometry>
 			</visual>
 			<collision>
@@ -85,7 +86,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 				<axis xyz="0 1 0" rpy="0 0 0" />
 			</joint>
 		</xacro:unless>
-
+		
 	</xacro:macro>
 
 </robot>

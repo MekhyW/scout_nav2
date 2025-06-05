@@ -35,7 +35,7 @@ def generate_launch_description():
 
 	# Scout robot description XACRO + gazebo definitions
 	scout_description_file = PathJoinSubstitution([
-		FindPackageShare("agilex_scout"),
+		FindPackageShare("robot_description"),
 		"urdf",
 		"robot.urdf.xacro",
 	])
@@ -99,7 +99,7 @@ def generate_launch_description():
 
 	# rviz2 node
 	rviz2_file = PathJoinSubstitution([
-		FindPackageShare("agilex_scout"),
+		FindPackageShare("robot_description"),
 		"rviz",
 		"real_scout_display.rviz",
 	])
