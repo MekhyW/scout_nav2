@@ -6,16 +6,6 @@ with a 3D lidar sensor mounted on top. The navigation stack launcher is based on
 [Navigation2](https://navigation.ros.org/) stack. The simulation environment is based on the AWS RoboMaker Small Warehouse World,
 which is a Gazebo world well suited for testing robot navigation in both cluttered and open spaces.
 
-#### Contributor
-
-Author: __Simone Giampà__
-
-Project realized at __Politecnico di Milano, Artificial Intelligence and Robotics Laboratory (AIRLAB)__ 
-
-Project part of my Master's Thesis project for the Master's Degree in __Computer Science and Engineering__
-
-Academic Year: 2023/2024
-
 ## Description
 
 This repository contains the configuration files and the launch files for performing autonomous navigation with
@@ -50,7 +40,8 @@ The compilation of the packages is required to run the simulation and the naviga
 using the following command:
 
 ```bash
-$ colcon build --DCMAKE_BUILD_TYPE=Release
+$ source /opt/ros/<ros-distro>/setup.bash
+$ colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
 ```
 
 Be aware that the compilation of the `spatio-temporal-voxel-layer` package can take a long time and consume a lot of memory, due to
@@ -100,17 +91,6 @@ The second command will launch the navigation stack with the specified parameter
 Parameters for simulation launch file:
 - `lidar_type`: 3d for a 3D lidar (pointcloud2), 2d for a 2D lidar (laserscan)
 - `rviz`: true if launching rviz, false if launching only the gazebo simulation
-  
-
-### Usage with the real robot
-
-To launch the real scout robot with the lidar sensor and the pointcloud-to-laserscan conversion node, run the following command:
-
-```bash
-$ ros2 launch agilex_scout scout_robot_lidar.launch.py 
-
-$ ros2 launch scout_nav2 nav2.launch.py simulation:=false slam:=<true|false> localization:=<amcl|slam_toolbox>
-```
 
 Parameters:
 
