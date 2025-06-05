@@ -20,18 +20,10 @@ and to keep an eye on the robot during operation for safety reasons.
 
 ### Dependencies
 
-The following dependencies are required to run the simulation and the navigation stack:
-- `navigation2`
-- `pointcloud-to-laserscan`
-- `slam-toolbox`
-- `ros-gzfortress`
-- `ignition-gazebo6`
-- `spatio-temporal-voxel-layer`
-
 The dependencies can be installed using the following command:
 
 ```bash
-$ sudo apt install ros-<$ros-distro>-<dependency-name>
+$ sudo apt install ros-humble-navigation2 ros-humble-pointcloud-to-laserscan ros-humble-slam-toolbox ros-humble-ros-gz libignition-gazebo6-dev ros-humble-spatio-temporal-voxel-layer python3-colcon-common-extensions -y
 ```
 
 ### Building
@@ -40,19 +32,10 @@ The compilation of the packages is required to run the simulation and the naviga
 using the following command:
 
 ```bash
-$ source /opt/ros/<ros-distro>/setup.bash
+$ source /opt/ros/humble/setup.bash
 $ colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
+$ source install/setup.bash
 ```
-
-Be aware that the compilation of the `spatio-temporal-voxel-layer` package can take a long time and consume a lot of memory, due to
-its dependecy on the `openvdb` library.
-If the compilation takes up too much memory, it is possible to limit the number of cores used by the compiler with the following command:
-
-```bash
-$ MAKEFLAGS="-j4" colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
-```
-
-Where the number 4 is the number of cores used by the compiler.
 
 ## Usage
 
