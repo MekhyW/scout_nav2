@@ -96,3 +96,11 @@ Parameters:
 - `slam`: `True` if you want to use SLAM toolbox for map creation, `False` if you want to do localization + navigation with the map already created
 - `simulation`: `true` if running in simulation with gazebo, `false` if launching the real AgileX Scout robot with real sensors
 - `localization`: choose the localization algorithm, among `amcl` and `slam_toolbox`
+
+If Gazebo crashes due to OGRE exception in WSL, try launching it using software acceleration instead of hardware acceleration:
+```bash
+$ export LIBGL_ALWAYS_SOFTWARE=1
+$ export MESA_GL_VERSION_OVERRIDE=3.3
+$ export GALLIUM_DRIVER=llvmpipe
+$ ign gazebo empty.sdf # test that it works
+```
