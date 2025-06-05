@@ -20,10 +20,18 @@ and to keep an eye on the robot during operation for safety reasons.
 
 ### Dependencies
 
+The following dependencies are required to run the simulation and the navigation stack:
+- `navigation2`
+- `pointcloud-to-laserscan`
+- `slam-toolbox`
+- `ros-gzfortress`
+- `ignition-gazebo6`
+- `spatio-temporal-voxel-layer`
+
 The dependencies can be installed using the following command:
 
 ```bash
-$ sudo apt install ros-humble-navigation2 ros-humble-pointcloud-to-laserscan ros-humble-slam-toolbox ros-humble-ros-gz libignition-gazebo6-dev ros-humble-spatio-temporal-voxel-layer python3-colcon-common-extensions -y
+$ sudo apt install ros-<$ros-distro>-<dependency-name>
 ```
 
 ### Building
@@ -32,10 +40,19 @@ The compilation of the packages is required to run the simulation and the naviga
 using the following command:
 
 ```bash
-$ source /opt/ros/humble/setup.bash
+$ source /opt/ros/<ros-distro>/setup.bash
 $ colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
-$ source install/setup.bash
 ```
+
+Be aware that the compilation of the `spatio-temporal-voxel-layer` package can take a long time and consume a lot of memory, due to
+its dependecy on the `openvdb` library.
+If the compilation takes up too much memory, it is possible to limit the number of cores used by the compiler with the following command:
+
+```bash
+$ MAKEFLAGS="-j4" colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
+```
+
+Where the number 4 is the number of cores used by the compiler.
 
 ## Usage
 
@@ -60,12 +77,12 @@ The maps created by the SLAM toolbox are saved in the `scout_nav2/maps` folder. 
 
 ### Usage in Simulation Environment with Gazebo
 
-To launch the simulation of the robot in Gazebo, along with NAV2, run the following command in separate terminals:
+To launch the simulation of the robot in Gazebo, along with NAV2, run the following command:
 
 ```bash
-$ ros2 launch agilex_scout simulate_control_gazebo.launch.py lidar_type:=2d rviz:=true
+$ ros2 launch agilex_scout simulate_control_gazebo.launch.py lidar_type:=<3d|2d> rviz:=<true|false>
 
-$ ros2 launch scout_nav2 nav2.launch.py simulation:=true slam:=true localization:=amcl
+$ ros2 launch scout_nav2 nav2.launch.py simulation:=true slam:=<true|false> localization:=<amcl|slam_toolbox>
 ```
 
 The first command will launch the simulation of the robot in Gazebo, with the 3D lidar sensor mounted on top, and the RViz GUI (optional).
@@ -80,14 +97,6 @@ Parameters:
 - `slam`: `True` if you want to use SLAM toolbox for map creation, `False` if you want to do localization + navigation with the map already created
 - `simulation`: `true` if running in simulation with gazebo, `false` if launching the real AgileX Scout robot with real sensors
 - `localization`: choose the localization algorithm, among `amcl` and `slam_toolbox`
-
-If the graphics rendering on Gazebo is not working/crashing, use software rendering:
-```bash
-$ export LIBGL_ALWAYS_SOFTWARE=1
-$ export MESA_GL_VERSION_OVERRIDE=3.3
-$ export GALLIUM_DRIVER=llvmpipe
-$ ign gazebo empty.sdf # test if gazebo works
-```
 
 ## Repository structure
 
