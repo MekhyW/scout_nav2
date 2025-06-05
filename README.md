@@ -60,12 +60,12 @@ The maps created by the SLAM toolbox are saved in the `scout_nav2/maps` folder. 
 
 ### Usage in Simulation Environment with Gazebo
 
-To launch the simulation of the robot in Gazebo, along with NAV2, run the following command:
+To launch the simulation of the robot in Gazebo, along with NAV2, run the following command in separate terminals:
 
 ```bash
-$ ros2 launch agilex_scout simulate_control_gazebo.launch.py lidar_type:=<3d|2d> rviz:=<true|false>
+$ ros2 launch agilex_scout simulate_control_gazebo.launch.py lidar_type:=2d rviz:=true
 
-$ ros2 launch scout_nav2 nav2.launch.py simulation:=true slam:=<true|false> localization:=<amcl|slam_toolbox>
+$ ros2 launch scout_nav2 nav2.launch.py simulation:=true slam:=true localization:=amcl
 ```
 
 The first command will launch the simulation of the robot in Gazebo, with the 3D lidar sensor mounted on top, and the RViz GUI (optional).
@@ -80,6 +80,14 @@ Parameters:
 - `slam`: `True` if you want to use SLAM toolbox for map creation, `False` if you want to do localization + navigation with the map already created
 - `simulation`: `true` if running in simulation with gazebo, `false` if launching the real AgileX Scout robot with real sensors
 - `localization`: choose the localization algorithm, among `amcl` and `slam_toolbox`
+
+If the graphics rendering on Gazebo is not working/crashing, use software rendering:
+```bash
+$ export LIBGL_ALWAYS_SOFTWARE=1
+$ export MESA_GL_VERSION_OVERRIDE=3.3
+$ export GALLIUM_DRIVER=llvmpipe
+$ ign gazebo empty.sdf # test if gazebo works
+```
 
 ## Repository structure
 
