@@ -36,9 +36,9 @@ amcl:
         z_max: 0.05
         z_rand: 0.5
         z_short: 0.05
-        scan_topic: /laser_scan
+        scan_topic: /ouster/scan
         map_topic: /map
-        set_initial_pose: true
+        set_initial_pose: false
         initial_pose:
             x: 0.0
             y: 0.0
@@ -64,8 +64,8 @@ bt_navigator:
         #default_nav_to_pose_bt_xml: $(find-pkg-share nav2_bt_navigator)/behavior_trees/navigate_to_pose_w_replanning_and_recovery.xml
         default_nav_through_poses_bt_xml: $(find-pkg-share nav2_bt_navigator)/behavior_trees/navigate_through_poses_w_replanning_and_recovery.xml
         # custom behavior tree definition
-        default_nav_to_pose_bt_xml: $(find-pkg-share scout_nav2)/params/bt_nav2pose.xml
-        
+        default_nav_to_pose_bt_xml: $(find-pkg-share rm_navigation)/params/bt_nav2pose.xml
+
         plugin_lib_names:
             - nav2_compute_path_to_pose_action_bt_node
             - nav2_compute_path_through_poses_action_bt_node
@@ -263,7 +263,7 @@ controller_server:
                 twirling_cost_power: 1
                 twirling_cost_weight: 10.0
 
-            
+
 local_costmap:
     local_costmap:
         ros__parameters:
@@ -281,24 +281,39 @@ local_costmap:
             lethal_cost_threshold: 100
             track_unknown_space: true
 
-            plugins: ["obstacle_layer", "inflation_layer"]
+            plugins: ["voxel_layer", "denoise_layer", "inflation_layer"]
 
-            obstacle_layer:
-                plugin: "nav2_costmap_2d::ObstacleLayer"
+            # volumetric obstacles costmap
+            voxel_layer:
+                plugin: "nav2_costmap_2d::VoxelLayer"
                 enabled: True
-                observation_sources: scan
-                scan:
-                    topic: /laser_scan
-                    min_obstacle_height: 0.1
+                footprint_clearing_enabled: True
+                publish_voxel_map: False
+                origin_z: 0.0
+                z_resolution: 0.05
+                z_voxels: 16
+                unknown_threshold: 15
+                mark_threshold: 0
+                observation_sources: pointcloud
+                combination_method: 1
+                pointcloud:  # no frame set, uses frame from message
+                    topic: /ouster/points
                     max_obstacle_height: 2.0
-                    clearing: True
-                    marking: True
-                    data_type: "LaserScan"
-                    raytrace_max_range: 15.0
-                    raytrace_min_range: 0.0
+                    min_obstacle_height: 0.1
                     obstacle_max_range: 12.0
                     obstacle_min_range: 0.0
-                    inf_is_valid: false
+                    raytrace_max_range: 15.0
+                    raytrace_min_range: 0.5
+                    clearing: True
+                    marking: True
+                    data_type: "PointCloud2"
+          
+            # denoising costmap by removing outlier points in groups less big than the minimum
+            denoise_layer:
+                plugin: "nav2_costmap_2d::DenoiseLayer"
+                enabled: true
+                minimal_group_size: 4
+                group_connectivity_type: 8
 
             inflation_layer:
                 plugin: "nav2_costmap_2d::InflationLayer"
@@ -323,7 +338,7 @@ global_costmap:
             track_unknown_space: true
             lethal_cost_threshold: 100
 
-            plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
+            plugins: ["static_layer", "voxel_layer", "denoise_layer", "inflation_layer"]
             static_layer:
                 plugin: "nav2_costmap_2d::StaticLayer"
                 map_subscribe_transient_local: True
@@ -332,22 +347,37 @@ global_costmap:
                 transform_tolerance: 0.1
                 map_topic: /map
 
-            obstacle_layer:
-                plugin: "nav2_costmap_2d::ObstacleLayer"
+            # volumetric obstacles costmap
+            voxel_layer:
+                plugin: "nav2_costmap_2d::VoxelLayer"
                 enabled: True
-                observation_sources: scan
-                scan:
-                    topic: /laser_scan
-                    min_obstacle_height: 0.1
+                footprint_clearing_enabled: True
+                publish_voxel_map: False
+                origin_z: 0.0
+                z_resolution: 0.05
+                z_voxels: 16
+                unknown_threshold: 15
+                mark_threshold: 0
+                observation_sources: pointcloud
+                combination_method: 1
+                pointcloud:  # no frame set, uses frame from message
+                    topic: /ouster/points
                     max_obstacle_height: 2.0
-                    clearing: True
-                    marking: True
-                    data_type: "LaserScan"
-                    raytrace_max_range: 15.0
-                    raytrace_min_range: 0.0
+                    min_obstacle_height: 0.1
                     obstacle_max_range: 12.0
                     obstacle_min_range: 0.0
-                    inf_is_valid: false
+                    raytrace_max_range: 15.0
+                    raytrace_min_range: 0.5
+                    clearing: True
+                    marking: True
+                    data_type: "PointCloud2"
+
+            # denoising costmap by removing outlier points in groups less big than the minimum
+            denoise_layer:
+                plugin: "nav2_costmap_2d::DenoiseLayer"
+                enabled: true
+                minimal_group_size: 4
+                group_connectivity_type: 8
 
             inflation_layer:
                 plugin: "nav2_costmap_2d::InflationLayer"
@@ -462,7 +492,7 @@ behavior_server:
         robot_base_frame: mobile_robot_base_link
         transform_tolerance: 0.1
         simulate_ahead_time: 2.0
-        max_rotational_vel: 0.8
+        max_rotational_vel: 1.0
         min_rotational_vel: 0.2
         rotational_acc_lim: 2.0
 
@@ -505,7 +535,7 @@ slam_toolbox:
         odom_frame: odom
         map_frame: map
         base_frame: base_footprint # --> base_footprint
-        scan_topic: /laser_scan # --> /scan
+        scan_topic: /ouster/scan # --> /scan
         use_map_saver: true
         mode: mapping #localization
 
@@ -610,12 +640,19 @@ collision_monitor:
             min_points: 6 # max_points: 5 for Humble
             visualize: True
             enabled: False
-            
+
         observation_sources: ["scan"]
         scan:
             source_timeout: 0.2
             type: "scan"
-            topic: "/laser_scan"
-            min_height: 0.0
+            topic: "/ouster/scan"
+            min_height: 0.1
             max_height: 2.0
             enabled: True
+        #NOTE: enabling pointcloud for collision monitoring makes the robot stop and not moving for some reason
+        pointcloud:
+            type: "pointcloud"
+            topic: "/ouster/points"
+            min_height: 0.1
+            max_height: 2.0
+            enabled: False

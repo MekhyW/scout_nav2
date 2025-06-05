@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-	<name>scout_nav2</name>
+	<name>rm_navigation</name>
 	<version>1.0.0</version>
 	<description>Nav2 with Scout robot in gazebo simulation </description>
 
 	<maintainer email="simone.giampa@mail.polimi.it">Simone Giampà</maintainer>
 	<license>AIRLAB</license>
 	<url type="website">polimi.it</url>
-	<url type="repository">https://github.com/AIRLab-POLIMI/scout_nav2</url>
+	<url type="repository">https://github.com/AIRLab-POLIMI/rm_navigation</url>
 	<author email="simone.giampa@mail.polimi.it">Simone Giampà</author>
 
 	<buildtool_depend>ament_cmake</buildtool_depend>

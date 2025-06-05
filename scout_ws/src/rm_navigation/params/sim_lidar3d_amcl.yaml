@@ -36,9 +36,9 @@ amcl:
         z_max: 0.05
         z_rand: 0.5
         z_short: 0.05
-        scan_topic: /ouster/scan
+        scan_topic: /laser_scan
         map_topic: /map
-        set_initial_pose: false
+        set_initial_pose: true
         initial_pose:
             x: 0.0
             y: 0.0
@@ -55,16 +55,18 @@ bt_navigator:
         wait_for_server_timeout: 1000 # ms
         action_server_result_timeout: 60.0 # s
         transform_tolerance: 0.1 # s
+        
+        # default behavior tree definitions
+        #default_nav_to_pose_bt_xml: $(find-pkg-share nav2_bt_navigator)/behavior_trees/navigate_to_pose_w_replanning_and_recovery.xml
+        default_nav_through_poses_bt_xml: $(find-pkg-share nav2_bt_navigator)/behavior_trees/navigate_through_poses_w_replanning_and_recovery.xml
+        # custom behavior tree definition
+        default_nav_to_pose_bt_xml: $(find-pkg-share rm_navigation)/params/bt_nav2pose.xml
+
         navigators: ["navigate_to_pose", "navigate_through_poses"]
         navigate_to_pose:
             plugin: "nav2_bt_navigator/NavigateToPoseNavigator"
         navigate_through_poses:
             plugin: "nav2_bt_navigator/NavigateThroughPosesNavigator"
-        # default behavior tree definitions
-        #default_nav_to_pose_bt_xml: $(find-pkg-share nav2_bt_navigator)/behavior_trees/navigate_to_pose_w_replanning_and_recovery.xml
-        default_nav_through_poses_bt_xml: $(find-pkg-share nav2_bt_navigator)/behavior_trees/navigate_through_poses_w_replanning_and_recovery.xml
-        # custom behavior tree definition
-        default_nav_to_pose_bt_xml: $(find-pkg-share scout_nav2)/params/bt_nav2pose.xml
 
         plugin_lib_names:
             - nav2_compute_path_to_pose_action_bt_node
@@ -124,11 +126,12 @@ bt_navigator:
 
 controller_server:
     ros__parameters:
-        controller_frequency: 20.0
+        #action_server_result_timeout: 10.0
+        controller_frequency: 10.0
         min_x_velocity_threshold: 0.001
         min_y_velocity_threshold: 0.5
         min_theta_velocity_threshold: 0.001
-        failure_tolerance: 0.3
+        failure_tolerance: 1.0
         progress_checker_plugins: ["progress_checker"]
         goal_checker_plugins: ["goal_checker"]
         controller_plugins: ["FollowPath"]
@@ -138,15 +141,14 @@ controller_server:
         # Progress checker parameters
         progress_checker:
             plugin: "nav2_controller::SimpleProgressChecker"
-            required_movement_radius: 0.3
+            required_movement_radius: 0.25
             movement_time_allowance: 10.0
         # Goal checker parameters
         goal_checker:
             stateful: True
             plugin: "nav2_controller::SimpleGoalChecker"
-            xy_goal_tolerance: 0.25
-            yaw_goal_tolerance: 0.25
-
+            xy_goal_tolerance: 0.15
+            yaw_goal_tolerance: 0.15
         FollowPath:
             # combination of 2 local planners: rotation shim controller and MPPI controller
             plugin: "nav2_rotation_shim_controller::RotationShimController"
@@ -155,16 +157,16 @@ controller_server:
             # Rotation shim controller parameters
             # Backup controller for rotation in place when angular heading error is larger than threshold
             # https://navigation.ros.org/configuration/packages/configuring-rotation-shim-controller.html
-            angular_dist_threshold: 0.2 # (radians) threshold for switching to rotation in place
+            angular_dist_threshold: 0.5 # (radians) threshold for switching to rotation in place
             forward_sampling_distance: 0.5
-            rotate_to_heading_angular_vel: 1.8
+            rotate_to_heading_angular_vel: 1.0
             max_angular_accel: 2.0
             simulate_ahead_time: 3.0
 
             # MPPI Controller parameters: local planner (controller)
             # https://navigation.ros.org/configuration/packages/configuring-mppic.html
-            time_steps: 200
-            model_dt: 0.05
+            time_steps: 50
+            model_dt: 0.1
             batch_size: 1000
             vx_std: 0.2
             vy_std: 0.2
@@ -172,11 +174,11 @@ controller_server:
             vx_max: 0.5
             vx_min: -0.5
             vy_max: 0.5
-            wz_max: 1.9
+            wz_max: 1.0
             iteration_count: 1
             temperature: 0.3
             gamma: 0.015
-            visualize: False # True for debugging only (will degrade performance)
+            visualize: True # True for debugging only (will degrade performance)
             retry_attempt_limit: 1
             regenerate_noises: false
 
@@ -191,19 +193,19 @@ controller_server:
             inversion_xy_tolerance: 0.2
             inversion_yaw_tolerance: 0.4
             # Ackermann motion model used by MPPI controller in contrast to in-place rotation shim controller
-            motion_model: "Ackermann"
+            motion_model: "DiffDrive" # "Ackermann" or "DiffDrive"
             AckermannConstraints:
                 min_turning_r: 0.2
             critics: [
-                    "ConstraintCritic", #This critic penalizes trajectories that have components outside of the set dynamic or kinematic constraints
-                    "ObstaclesCritic", #This critic incentivizes navigating away from obstacles and critical collisions using either a circular robot point-check or full SE2 footprint check.
-                    "GoalCritic", #This critic incentivizes navigating spatially towards the goal when in reasonable proximity to goal
-                    "GoalAngleCritic", #This critic incentivizes navigating to achieve the angle of the goal posewhen in reasonable proximity to goal
-                    "PathAlignCritic", #This critic incentivizes aligning with the global path, if relevant. It does not implement path following behavior.
-                    "PathFollowCritic", #This critic incentivizes making progress along the path. This is what drives the robot forward along the path.
-                    "PathAngleCritic", #This critic penalizes trajectories at a high relative angle to the path. This helps the robot make sharp turns when necessary due to large accumulated angular errors.
-                    "PreferForwardCritic", #This critic incentivizes moving in the forward direction, rather than reversing.
-                    #"TwirlingCritic" # This critic penalizes unnecessary ‘twisting’ with holonomic vehicles. It adds a constraint on the rotation angle to keep it consistent.
+                    "ConstraintCritic", # penalizes trajectories that have components outside of the set dynamic or kinematic constraints
+                    "ObstaclesCritic", # incentivizes navigating away from obstacles and critical collisions using either a circular robot point-check or full SE2 footprint check.
+                    "GoalCritic", # incentivizes navigating spatially towards the goal when in reasonable proximity to goal
+                    "GoalAngleCritic", # incentivizes navigating to achieve the angle of the goal pose when in reasonable proximity to goal
+                    "PathAlignCritic", #incentivizes aligning with the global path, if relevant. It does not implement path following behavior.
+                    "PathFollowCritic", # incentivizes making progress along the path. This is what drives the robot forward along the path.
+                    "PathAngleCritic", # penalizes trajectories at a high relative angle to the path. This helps the robot make sharp turns when necessary due to large accumulated angular errors.
+                    #"PreferForwardCritic", # incentivizes moving in the forward direction, rather than reversing.
+                    "TwirlingCritic", # penalizes unnecessary ‘twisting’ with holonomic vehicles. It adds a constraint on the rotation angle to keep it consistent.
                 ]
             ConstraintCritic:
                 enabled: true
@@ -212,52 +214,50 @@ controller_server:
             GoalCritic:
                 enabled: true
                 cost_power: 1
-                cost_weight: 5.0
-                threshold_to_consider: 1.4
+                cost_weight: 20.0
+                threshold_to_consider: 0.7
             GoalAngleCritic:
                 enabled: true
                 cost_power: 1
-                cost_weight: 3.0
-                threshold_to_consider: 0.5
+                cost_weight: 5.0
+                threshold_to_consider: 0.7
             PreferForwardCritic:
-                enabled: true
+                enabled: false
                 cost_power: 1
                 cost_weight: 1.0
-                threshold_to_consider: 0.5
+                threshold_to_consider: 0.7
             ObstaclesCritic:
                 enabled: true
                 cost_power: 1
-                repulsion_weight: 1.5
+                repulsion_weight: 1.4 # default 1.5
                 critical_weight: 20.0
                 consider_footprint: true
                 collision_cost: 10000.0
-                collision_margin_distance: 0.5
-                near_goal_distance: 1.0
-                #inflation_radius: 0.6 # (only in Humble)
-                #cost_scaling_factor: 2.0 # (only in Humble)
+                collision_margin_distance: 0.1
+                near_goal_distance: 0.7
             PathAlignCritic:
                 enabled: true
                 cost_power: 1
                 cost_weight: 20.0
                 max_path_occupancy_ratio: 0.05
                 trajectory_point_step: 3
-                threshold_to_consider: 1.0
                 offset_from_furthest: 30
                 use_path_orientations: true
+                threshold_to_consider: 0.7
             PathFollowCritic:
                 enabled: true
                 cost_power: 1
                 cost_weight: 4.0
                 offset_from_furthest: 6
-                threshold_to_consider: 1.4
+                threshold_to_consider: 0.7
             PathAngleCritic:
                 enabled: true
                 cost_power: 1
                 cost_weight: 4.0
-                offset_from_furthest: 4
-                threshold_to_consider: 0.5
-                max_angle_to_furthest: 0.7
                 mode: 2
+                offset_from_furthest: 4
+                max_angle_to_furthest: 0.7
+                threshold_to_consider: 0.7
             TwirlingCritic:
                 enabled: true
                 twirling_cost_power: 1
@@ -273,8 +273,8 @@ local_costmap:
             robot_base_frame: mobile_robot_base_link
             map_topic: /map
             rolling_window: true
-            width: 5
-            height: 5
+            width: 8
+            height: 8
             resolution: 0.05
             footprint: "[ [0.45, 0.35], [0.45, -0.35], [-0.45, -0.35], [-0.45, 0.35] ]"
             footprint_padding: 0.02
@@ -283,11 +283,11 @@ local_costmap:
 
             plugins: ["voxel_layer", "denoise_layer", "inflation_layer"]
 
-            # volumetric obstacles costmap
+            # volumetric obstacles costmap layer
             voxel_layer:
                 plugin: "nav2_costmap_2d::VoxelLayer"
                 enabled: True
-                footprint_clearing_enabled: True
+                footprint_clearing_enabled: true
                 publish_voxel_map: False
                 origin_z: 0.0
                 z_resolution: 0.05
@@ -296,18 +296,20 @@ local_costmap:
                 mark_threshold: 0
                 observation_sources: pointcloud
                 combination_method: 1
-                pointcloud:  # no frame set, uses frame from message
-                    topic: /ouster/points
-                    max_obstacle_height: 2.0
+                pointcloud: # no frame set, uses frame from message
+                    topic: /points
+                    observation_persistence: 1.0
+                    expected_update_rate: 10.0
+                    max_obstacle_height: 1.5
                     min_obstacle_height: 0.1
                     obstacle_max_range: 12.0
                     obstacle_min_range: 0.0
                     raytrace_max_range: 15.0
-                    raytrace_min_range: 0.5
+                    raytrace_min_range: 0.0
                     clearing: True
                     marking: True
                     data_type: "PointCloud2"
-          
+            
             # denoising costmap by removing outlier points in groups less big than the minimum
             denoise_layer:
                 plugin: "nav2_costmap_2d::DenoiseLayer"
@@ -318,7 +320,7 @@ local_costmap:
             inflation_layer:
                 plugin: "nav2_costmap_2d::InflationLayer"
                 cost_scaling_factor: 2.0
-                inflation_radius: 0.6
+                inflation_radius: 0.5
             always_send_full_costmap: True
 
 global_costmap:
@@ -333,12 +335,12 @@ global_costmap:
             footprint: "[ [0.45, 0.35], [0.45, -0.35], [-0.45, -0.35], [-0.45, 0.35] ]"
             footprint_padding: 0.02
             resolution: 0.05
-            width: 12
-            height: 12
+            width: 16
+            height: 16
             track_unknown_space: true
             lethal_cost_threshold: 100
 
-            plugins: ["static_layer", "voxel_layer", "denoise_layer", "inflation_layer"]
+            plugins: ["static_layer", "denoise_layer", "inflation_layer"]
             static_layer:
                 plugin: "nav2_costmap_2d::StaticLayer"
                 map_subscribe_transient_local: True
@@ -347,42 +349,17 @@ global_costmap:
                 transform_tolerance: 0.1
                 map_topic: /map
 
-            # volumetric obstacles costmap
-            voxel_layer:
-                plugin: "nav2_costmap_2d::VoxelLayer"
-                enabled: True
-                footprint_clearing_enabled: True
-                publish_voxel_map: False
-                origin_z: 0.0
-                z_resolution: 0.05
-                z_voxels: 16
-                unknown_threshold: 15
-                mark_threshold: 0
-                observation_sources: pointcloud
-                combination_method: 1
-                pointcloud:  # no frame set, uses frame from message
-                    topic: /ouster/points
-                    max_obstacle_height: 2.0
-                    min_obstacle_height: 0.1
-                    obstacle_max_range: 12.0
-                    obstacle_min_range: 0.0
-                    raytrace_max_range: 15.0
-                    raytrace_min_range: 0.5
-                    clearing: True
-                    marking: True
-                    data_type: "PointCloud2"
-
             # denoising costmap by removing outlier points in groups less big than the minimum
             denoise_layer:
                 plugin: "nav2_costmap_2d::DenoiseLayer"
                 enabled: true
                 minimal_group_size: 4
                 group_connectivity_type: 8
-
+            
             inflation_layer:
                 plugin: "nav2_costmap_2d::InflationLayer"
                 cost_scaling_factor: 2.0
-                inflation_radius: 0.6
+                inflation_radius: 0.5
             always_send_full_costmap: True
 
 map_saver:
@@ -396,11 +373,10 @@ map_server:
     ros__parameters:
         topic_name: /map
         frame_id: map
-        #yaml_filename: "~/siri/src/siri_nav2/maps/map.yaml"
 
 planner_server:
     ros__parameters:
-        expected_planner_frequency: 20.0
+        expected_planner_frequency: 10.0
         planner_plugins: ["GridBased"]
         GridBased:
             plugin: "nav2_smac_planner/SmacPlannerHybrid"
@@ -411,7 +387,7 @@ planner_server:
             max_iterations: 1000000 # maximum total iterations to search for before failing (in case unreachable), set to -1 to disable
             max_on_approach_iterations: 1000 # Maximum number of iterations after within tolerances to continue to try to find exact solution
             max_planning_time: 10.0 # max time in s for planner to plan, smooth
-            motion_model_for_search: "DUBIN" # Hybrid-A* Dubin, Redds-Shepp
+            motion_model_for_search: "DUBIN" # Hybrid-A* DUBIN, REEDS_SHEPP supports reversing but doesn't work at all
             angle_quantization_bins: 64 # Number of angle bins for search
             analytic_expansion_ratio: 3.5 # The ratio to attempt analytic expansions during search for final approach.
             analytic_expansion_max_length: 3.0 # For Hybrid/Lattice nodes: The maximum length of the analytic expansion to be considered valid to prevent unsafe shortcutting
@@ -512,8 +488,8 @@ velocity_smoother:
         smoothing_frequency: 20.0
         scale_velocities: False
         feedback: "OPEN_LOOP"
-        max_velocity: [0.3, 0.0, 0.5]
-        min_velocity: [-0.3, 0.0, -0.5]
+        max_velocity: [1.0, 0.0, 0.5]
+        min_velocity: [-1.0, 0.0, -0.5]
         max_accel: [2.5, 0.0, 2.0]
         max_decel: [-2.5, 0.0, -2.0]
         odom_topic: /odometry
@@ -535,16 +511,9 @@ slam_toolbox:
         odom_frame: odom
         map_frame: map
         base_frame: base_footprint # --> base_footprint
-        scan_topic: /ouster/scan # --> /scan
+        scan_topic: /laser_scan # --> /scan
         use_map_saver: true
-        mode: mapping #localization
-
-        # if you'd like to immediately start continuing a map at a given pose
-        # or at the dock, but they are mutually exclusive, if pose is given
-        # will use pose
-        #map_file_name: test_steve
-        #map_start_pose: [0.0, 0.0, 0.0]
-        #map_start_at_dock: true
+        mode: mapping #OR localization
 
         debug_logging: false
         throttle_scans: 1
@@ -553,16 +522,16 @@ slam_toolbox:
         resolution: 0.05
         max_laser_range: 16.0 #for rastering images
         minimum_time_interval: 0.5
-        transform_timeout: 0.2
-        tf_buffer_duration: 30.
+        transform_timeout: 1.0
+        tf_buffer_duration: 30.0
         stack_size_to_use: 40000000 #// program needs a larger stack size to serialize large maps
         enable_interactive_mode: true
 
         # General Parameters
         use_scan_matching: true
         use_scan_barycenter: true
-        minimum_travel_distance: 0.5
-        minimum_travel_heading: 0.5
+        minimum_travel_distance: 0.2
+        minimum_travel_heading: 0.2
         scan_buffer_size: 10
         scan_buffer_maximum_scan_distance: 10.0
         link_match_minimum_response_fine: 0.1
@@ -607,7 +576,7 @@ collision_monitor:
         base_shift_correction: True
         stop_pub_timeout: 2.0
         use_realtime_priority: false
-        
+
         polygons: ["FootprintStop", "FootprintSlowdown", "FootprintApproach"]
         FootprintStop:
             # Define a zone and a point threshold. If min_points or more obstacle points appear inside this area, stop the robot until the obstacles will disappear.
@@ -641,18 +610,10 @@ collision_monitor:
             visualize: True
             enabled: False
 
-        observation_sources: ["scan"]
-        scan:
-            source_timeout: 0.2
-            type: "scan"
-            topic: "/ouster/scan"
-            min_height: 0.1
-            max_height: 2.0
-            enabled: True
-        #NOTE: enabling pointcloud for collision monitoring makes the robot stop and not moving for some reason
+        observation_sources: ["pointcloud"]
         pointcloud:
             type: "pointcloud"
-            topic: "/ouster/points"
+            topic: "/points"
             min_height: 0.1
-            max_height: 2.0
-            enabled: False
+            max_height: 1.5
+            enabled: True

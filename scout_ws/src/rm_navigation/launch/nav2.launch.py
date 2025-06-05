@@ -47,7 +47,7 @@ def launch_setup(context, *args, **kwargs):
     # using specialized version of nav2 bringup to account for collision monitor parameters
     nav2_bringup_dir = get_package_share_directory("nav2_bringup_custom")
     nav2_launch_file = os.path.join(nav2_bringup_dir, "launch", "bringup_launch.py")
-    scout_nav2_dir = get_package_share_directory("scout_nav2")
+    rm_navigation_dir = get_package_share_directory("rm_navigation")
 
     slam = LaunchConfiguration("slam").perform(context).lower()
     simulation = LaunchConfiguration("simulation").perform(context).lower()
@@ -91,9 +91,9 @@ def launch_setup(context, *args, **kwargs):
                 params_file_name = "scout_amcl.yaml"
 
     # NAV2 parameters file path
-    nav2_params_file = os.path.join(scout_nav2_dir, "params", params_file_name)
+    nav2_params_file = os.path.join(rm_navigation_dir, "params", params_file_name)
     # map file path for localization with AMCL
-    map_yaml_file = os.path.join(scout_nav2_dir, "maps", map_file)
+    map_yaml_file = os.path.join(rm_navigation_dir, "maps", map_file)
 
     # if slam is enabled --> slam + localization + navigation
     nav2_slam_launch = IncludeLaunchDescription(
@@ -147,7 +147,7 @@ def launch_setup(context, *args, **kwargs):
     )
 
     # launch rviz
-    rviz_default_config_file = os.path.join(scout_nav2_dir, "rviz", "nav2.rviz")
+    rviz_default_config_file = os.path.join(rm_navigation_dir, "rviz", "nav2.rviz")
     rviz_node = Node(
         package="rviz2",
         executable="rviz2",

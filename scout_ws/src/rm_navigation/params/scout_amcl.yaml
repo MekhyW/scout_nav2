@@ -1,3 +1,50 @@
+amcl:
+    ros__parameters:
+        alpha1: 0.2
+        alpha2: 0.2
+        alpha3: 0.2
+        alpha4: 0.2
+        alpha5: 0.2
+        base_frame_id: base_footprint
+        beam_skip_distance: 0.5
+        beam_skip_error_threshold: 0.9
+        beam_skip_threshold: 0.3
+        do_beamskip: false
+        global_frame_id: map
+        lambda_short: 0.1
+        laser_likelihood_max_dist: 2.0
+        laser_max_range: 100.0
+        laser_min_range: -1.0
+        laser_model_type: "likelihood_field"
+        max_beams: 180
+        max_particles: 2000
+        min_particles: 500
+        odom_frame_id: odom
+        pf_err: 0.05
+        pf_z: 0.99
+        recovery_alpha_fast: 0.0
+        recovery_alpha_slow: 0.0
+        resample_interval: 1
+        robot_model_type: "nav2_amcl::DifferentialMotionModel"
+        save_pose_rate: 0.5
+        sigma_hit: 0.2
+        tf_broadcast: true
+        transform_tolerance: 1.0
+        update_min_a: 0.1
+        update_min_d: 0.15
+        z_hit: 0.5
+        z_max: 0.05
+        z_rand: 0.5
+        z_short: 0.05
+        scan_topic: /ouster/scan
+        map_topic: /map
+        set_initial_pose: false
+        initial_pose:
+            x: -1.5
+            y: 0.0
+            z: 0.25
+            yaw: 0.0
+
 bt_navigator:
     ros__parameters:
         global_frame: map
@@ -13,7 +60,7 @@ bt_navigator:
         #default_nav_to_pose_bt_xml: $(find-pkg-share nav2_bt_navigator)/behavior_trees/navigate_to_pose_w_replanning_and_recovery.xml
         default_nav_through_poses_bt_xml: $(find-pkg-share nav2_bt_navigator)/behavior_trees/navigate_through_poses_w_replanning_and_recovery.xml
         # custom behavior tree definition
-        default_nav_to_pose_bt_xml: $(find-pkg-share scout_nav2)/params/bt_nav2pose.xml
+        default_nav_to_pose_bt_xml: $(find-pkg-share rm_navigation)/params/bt_nav2pose.xml
 
         navigators: ["navigate_to_pose", "navigate_through_poses"]
         navigate_to_pose:
@@ -132,7 +179,7 @@ controller_server:
             iteration_count: 1
             temperature: 0.3
             gamma: 0.015
-            visualize: True # True for debugging only (will degrade performance)
+            visualize: False # True for debugging only (will degrade performance)
             retry_attempt_limit: 1
             regenerate_noises: false
 
@@ -147,7 +194,7 @@ controller_server:
             inversion_xy_tolerance: 0.2
             inversion_yaw_tolerance: 0.4
             # Ackermann motion model used by MPPI controller in contrast to in-place rotation shim controller
-            motion_model: "DiffDrive" # "Ackermann" or "DiffDrive"
+            motion_model: "DiffDrive"
             AckermannConstraints:
                 min_turning_r: 0.2
             critics: [
@@ -183,7 +230,7 @@ controller_server:
             ObstaclesCritic:
                 enabled: true
                 cost_power: 1
-                repulsion_weight: 1.5 # default 1.5
+                repulsion_weight: 1.4 # default 1.5
                 critical_weight: 20.0
                 consider_footprint: true
                 collision_cost: 10000.0
@@ -226,54 +273,42 @@ local_costmap:
             robot_base_frame: mobile_robot_base_link
             map_topic: /map
             rolling_window: true
-            width: 12
-            height: 12
+            width: 8
+            height: 8
             resolution: 0.05
             footprint: "[ [0.45, 0.35], [0.45, -0.35], [-0.45, -0.35], [-0.45, 0.35] ]"
             footprint_padding: 0.02
             lethal_cost_threshold: 100
             track_unknown_space: true
 
-            plugins: ["spatio_temporal_voxel_layer", "denoise_layer", "inflation_layer"]
+            plugins: ["voxel_layer", "denoise_layer", "inflation_layer"]
 
-            spatio_temporal_voxel_layer:
-                plugin: "spatio_temporal_voxel_layer/SpatioTemporalVoxelLayer"
-                enabled: true
-                voxel_decay: 5.0 # seconds if linear, e^n if exponential
-                decay_model: 0 # 0=linear, 1=exponential, -1=persistent
-                voxel_size: 0.05 # meters
-                track_unknown_space: false # default space is known
-                mark_threshold: 1 # voxel height
-                update_footprint_enabled: true
-                combination_method: 1 # 1=max, 0=override
-                origin_z: 0.0 # meters
-                publish_voxel_map: false # default off
-                transform_tolerance: 0.3 # seconds
-                mapping_mode: false # default off, saves map not for navigation
-                map_save_duration: 60.0 # default 60s, how often to autosave
-                observation_sources: lidar_mark_clear
-                lidar_mark_clear:
-                    enabled: true
-                    data_type: PointCloud2
+            # volumetric obstacles costmap
+            voxel_layer:
+                plugin: "nav2_costmap_2d::VoxelLayer"
+                enabled: True
+                footprint_clearing_enabled: True
+                publish_voxel_map: False
+                origin_z: 0.0
+                z_resolution: 0.1
+                z_voxels: 16
+                unknown_threshold: 15
+                mark_threshold: 0
+                observation_sources: pointcloud
+                combination_method: 1
+                pointcloud: # no frame set, uses frame from message
                     topic: /ouster/points
-                    marking: true
-                    clearing: true
-                    obstacle_range: 12.0 # meters
-                    min_obstacle_height: 0.15 # default 0, meters
-                    max_obstacle_height: 1.5 # default 3, meters
-                    expected_update_rate: 10.0 # default 0, if not updating at this rate at least, remove from buffer
-                    observation_persistence: 0.0 # default 0, use all measurements taken during now-value, 0=latest
-                    inf_is_valid: false # default false, for laser scans
-                    filter: "voxel" # default passthrough, apply "voxel", "passthrough", or no filter to sensor data
-                    voxel_min_points: 0 # default 0, minimum points per voxel for voxel filter
-                    clear_after_reading: true # default false, clear the buffer after the layer gets readings from it
-                    max_z: 3.0 # default 0, meters
-                    min_z: 0.0 # default 10, meters
-                    vertical_fov_angle: 0.7 # default 0.7, radians. For 3D lidars it's the symmetric FOV about the planar axis.
-                    vertical_fov_padding: 0.05 # 3D Lidar only. Default 0, in meters
-                    horizontal_fov_angle: 6.29 # 3D lidar scanners like the VLP16 have 360 deg horizontal FOV.
-                    decay_acceleration: 5.0 # default 0, 1/s^2.
-                    model_type: 1 # default 0, model type for frustum. 0=depth camera, 1=3d lidar like VLP16 or similar
+                    observation_persistence: 1.0
+                    expected_update_rate: 10.0
+                    max_obstacle_height: 1.0
+                    min_obstacle_height: 0.15
+                    obstacle_max_range: 12.0
+                    obstacle_min_range: 0.0
+                    raytrace_max_range: 15.0
+                    raytrace_min_range: 0.0
+                    clearing: True
+                    marking: True
+                    data_type: "PointCloud2"
 
             # denoising costmap by removing outlier points in groups less big than the minimum
             denoise_layer:
@@ -300,8 +335,8 @@ global_costmap:
             footprint: "[ [0.45, 0.35], [0.45, -0.35], [-0.45, -0.35], [-0.45, 0.35] ]"
             footprint_padding: 0.02
             resolution: 0.05
-            width: 20
-            height: 20
+            width: 16
+            height: 16
             track_unknown_space: true
             lethal_cost_threshold: 100
 
@@ -352,7 +387,7 @@ planner_server:
             max_iterations: 1000000 # maximum total iterations to search for before failing (in case unreachable), set to -1 to disable
             max_on_approach_iterations: 1000 # Maximum number of iterations after within tolerances to continue to try to find exact solution
             max_planning_time: 10.0 # max time in s for planner to plan, smooth
-            motion_model_for_search: "REEDS_SHEPP" # Hybrid-A* DUBIN, REEDS_SHEPP supports reversing
+            motion_model_for_search: "REEDS_SHEPP" # Hybrid-A* Dubin, Redds-Shepp
             angle_quantization_bins: 64 # Number of angle bins for search
             analytic_expansion_ratio: 3.5 # The ratio to attempt analytic expansions during search for final approach.
             analytic_expansion_max_length: 3.0 # For Hybrid/Lattice nodes: The maximum length of the analytic expansion to be considered valid to prevent unsafe shortcutting
@@ -478,12 +513,7 @@ slam_toolbox:
         base_frame: base_footprint # --> base_footprint
         scan_topic: /ouster/scan # --> /scan
         use_map_saver: true
-        mode: localization #OR mapping
-
-        # localization using posegraph map data: filename without extension, full path required
-        #NOTE: currently no way of setting the map file name from the launch file
-        map_file_name: /home/airlab/simon/scout_nav2/src/scout_nav2/maps/airlab/airlab # full path
-        map_start_pose: [-1.5, 0.0, 0.0] # use rviz2 set_initial_pose to set the starting pose
+        mode: mapping #OR localization
 
         debug_logging: false
         throttle_scans: 1
@@ -492,8 +522,8 @@ slam_toolbox:
         resolution: 0.05
         max_laser_range: 16.0 #for rastering images
         minimum_time_interval: 0.5
-        transform_timeout: 1.0
-        tf_buffer_duration: 30.0
+        transform_timeout: 0.2
+        tf_buffer_duration: 30.
         stack_size_to_use: 40000000 #// program needs a larger stack size to serialize large maps
         enable_interactive_mode: true
 
