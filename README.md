@@ -69,12 +69,12 @@ The maps created by the SLAM toolbox are saved in the `rm_navigation/maps` folde
 To launch the simulation of the robot in Gazebo, along with NAV2, and the waypoint publisher node run the following commands in separate terminals:
 
 ```bash
-ros2 launch robot_description simulate_control_gazebo.launch.py lidar_type:=2d rviz:=false
+ros2 launch robot_description simulation.launch.py
 ```
 
 ```bash
 chmod 0700  /run/user/1000/
-ros2 launch rm_navigation nav2.launch.py simulation:=true slam:=true localization:=amcl
+ros2 launch rm_navigation rm_navigation.launch.py
 ```
 
 ```bash

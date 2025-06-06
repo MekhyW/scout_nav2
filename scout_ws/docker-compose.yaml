@@ -39,7 +39,7 @@ services:
     command: >
       bash -c "source /opt/ros/humble/setup.bash &&
               source /ros2_ws/install/setup.bash &&
-              ros2 launch rm_navigation nav2.launch.py simulation:=true slam:=true localization:=amcl use_sim_time:=true"
+              ros2 launch rm_navigation rm_navigation.launch.py"
 
   waypoint_publisher:
     build:
