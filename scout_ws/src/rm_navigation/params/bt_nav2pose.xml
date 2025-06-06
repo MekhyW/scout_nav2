@@ -1,22 +1,3 @@
-
-<!--
-	Reference URL: https://navigation.ros.org/behavior_trees/trees/nav_to_pose_with_consistent_replanning_and_if_path_becomes_invalid.html
-
-Navigate To Pose With Consistent Replanning And If Path Becomes Invalid
-
-	This behavior tree for navigation in ROS2 emphasizes robustness and flexibility. It retries
-navigation tasks up to 6 times, incorporating custom recoveries for planner and controller failures.
-It dynamically replans based on invalid paths or new goals, ensuring responsiveness and adaptability
-in complex environments. Additionally, it allows for algorithm selection through external
-applications, enhancing usability and scalability.
-
-	This Behavior Tree replans the global path periodically at 1 Hz and it also has
-In nominal execution, replanning can be triggered by an a invalid previous path, a new goal or if a
-new path has not been created for 10 seconds. If the planner or controller fails, it will trigger
-contextually aware recoveries in its subtree. Currently, the recoveries will clear the global
-costmap if the planner fails and clear the local costmap if the controller fails. Additional
-context-specific recoveries can be added to these subtrees.
--->
 <root main_tree_to_execute="MainTree">
 	<BehaviorTree ID="MainTree">
 		<RecoveryNode number_of_retries="3" name="NavigateRecovery">

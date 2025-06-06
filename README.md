@@ -40,18 +40,8 @@ using the following command:
 
 ```bash
 source /opt/ros/humble/setup.bash
-colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
+colcon build --cmake-clean-cache
 ```
-
-Be aware that the compilation of the `spatio-temporal-voxel-layer` package can take a long time and consume a lot of memory, due to
-its dependecy on the `openvdb` library.
-If the compilation takes up too much memory, it is possible to limit the number of cores used by the compiler with the following command:
-
-```bash
-MAKEFLAGS="-j4" colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
-```
-
-Where the number 4 is the number of cores used by the compiler.
 
 ## Usage
 
@@ -102,8 +92,8 @@ Parameters:
 
 If Gazebo crashes due to OGRE exception in WSL, try launching it using software acceleration instead of hardware acceleration:
 ```bash
-$ export LIBGL_ALWAYS_SOFTWARE=1
-$ export MESA_GL_VERSION_OVERRIDE=3.3
-$ export GALLIUM_DRIVER=llvmpipe
-$ ign gazebo empty.sdf # test that it works
+export LIBGL_ALWAYS_SOFTWARE=1
+export MESA_GL_VERSION_OVERRIDE=3.3
+export GALLIUM_DRIVER=llvmpipe
+ign gazebo empty.sdf # test that it works
 ```
