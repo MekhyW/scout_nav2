@@ -7,6 +7,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ../:/ros2_ws/src/scout_nav2
+      - ros2_ws_vol:/ros2_ws
     command: >
       bash -c "source /opt/ros/humble/setup.bash &&
               cd /ros2_ws &&
@@ -19,6 +20,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ../:/ros2_ws/src/scout_nav2
+      - ros2_ws_vol:/ros2_ws
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
     environment:
       - DISPLAY=${DISPLAY}
@@ -29,7 +31,8 @@ services:
     privileged: true
     tty: true
     depends_on:
-      - build_ws
+      build_ws:
+        condition: service_completed_successfully
     command: >
       bash -c "source /opt/ros/humble/setup.bash &&
               source /ros2_ws/install/setup.bash &&
@@ -41,6 +44,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ../:/ros2_ws/src/scout_nav2
+      - ros2_ws_vol:/ros2_ws
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
     environment:
       - DISPLAY=${DISPLAY}
@@ -51,7 +55,8 @@ services:
     privileged: true
     tty: true
     depends_on:
-      - simulation
+      simulation:
+        condition: service_started
     command: >
       bash -c "source /opt/ros/humble/setup.bash &&
               source /ros2_ws/install/setup.bash &&
@@ -63,6 +68,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ../:/ros2_ws/src/scout_nav2
+      - ros2_ws_vol:/ros2_ws
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
     environment:
       - DISPLAY=${DISPLAY}
@@ -73,8 +79,12 @@ services:
     privileged: true
     tty: true
     depends_on:
-      - navigation
+      navigation:
+        condition: service_started
     command: >
       bash -c "source /opt/ros/humble/setup.bash &&
               source /ros2_ws/install/setup.bash &&
               ros2 run waypoint_navigation_pkg waypoint_navigation_node"
+
+volumes:
+  ros2_ws_vol:

@@ -4,7 +4,7 @@
   <name>waypoint_navigation_pkg</name>
   <version>0.0.0</version>
   <description>A ROS 2 package for waypoint-based navigation using Nav2</description>
-  <maintainer email="matheusrb@todo.todo">matheusrb</maintainer>
+  <maintainer email="felipec13@al.insper.edu.br">felipec13</maintainer>
   <license>TODO: License declaration</license>
 
   <depend>rclpy</depend>

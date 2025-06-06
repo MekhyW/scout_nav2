@@ -15,10 +15,11 @@ RUN apt-get update && apt-get install -y \
     ros-${ROS_DISTRO}-joint-state-publisher-gui \
     ros-${ROS_DISTRO}-robot-state-publisher \
     ros-${ROS_DISTRO}-xacro \
+    ros-${ROS_DISTRO}-ros-gz-bridge \
+    ros-${ROS_DISTRO}-ros-gz-sim \
     ignition-${IGN_VERSION} \
     python3-pip \
-    python3-rosdep \
-    && rm -rf /var/lib/apt/lists/*
+    python3-rosdep 
 
 ENV LIBGL_ALWAYS_SOFTWARE=1
 ENV MESA_GL_VERSION_OVERRIDE=3.3
