@@ -66,7 +66,7 @@ The maps created by the SLAM toolbox are saved in the `rm_navigation/maps` folde
 
 ### Usage in Simulation Environment with Gazebo
 
-To launch the simulation of the robot in Gazebo, along with NAV2, run the following command:
+To launch the simulation of the robot in Gazebo, along with NAV2, and the waypoint publisher node run the following commands in separate terminals:
 
 ```bash
 ros2 launch robot_description simulate_control_gazebo.launch.py lidar_type:=2d rviz:=false
@@ -75,6 +75,14 @@ ros2 launch robot_description simulate_control_gazebo.launch.py lidar_type:=2d r
 ```bash
 chmod 0700  /run/user/1000/
 ros2 launch rm_navigation nav2.launch.py simulation:=true slam:=true localization:=amcl
+```
+
+```bash
+ros2 run waypoint_navigation_pkg waypoint_navigation_node
+```
+
+```bash
+ros2 service call /start_navigation std_srvs/srv/Trigger
 ```
 
 The first command will launch the simulation of the robot in Gazebo, with the 3D lidar sensor mounted on top, and the RViz GUI (optional).
