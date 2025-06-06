@@ -1,0 +1,45 @@
+waypoints:
+  - name: "point 1"
+    pose:
+      position:
+        x: 2.0
+        y: 2.0
+        z: 0.0
+      orientation:
+        x: 0.0
+        y: 0.0
+        z: 0.0
+        w: 1.0
+  - name: "point 2"
+    pose:
+      position:
+        x: -3.0
+        y: -3.0
+        z: 0.0
+      orientation:
+        x: 0.0
+        y: 0.0
+        z: 0.0
+        w: 1.0
+  - name: "point 3"
+    pose:
+      position:
+        x: 1.0
+        y: -7.0
+        z: 0.0
+      orientation:
+        x: 0.0
+        y: 0.0
+        z: 0.0
+        w: 1.0
+  - name: "point 4"
+    pose:
+      position:
+        x: -4.0
+        y: -6.0
+        z: 0.0
+      orientation:
+        x: 0.0
+        y: 0.0
+        z: 0.0
+        w: 1.0

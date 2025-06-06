@@ -3,12 +3,15 @@
 <package format="3">
   <name>waypoint_navigation_pkg</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>A ROS 2 package for waypoint-based navigation using Nav2</description>
   <maintainer email="matheusrb@todo.todo">matheusrb</maintainer>
   <license>TODO: License declaration</license>
 
   <depend>rclpy</depend>
-  <depend>custom_interfaces</depend>
+  <depend>nav2_msgs</depend>
+  <depend>std_srvs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>yaml</depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
