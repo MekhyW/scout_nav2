@@ -43,28 +43,7 @@ source /opt/ros/humble/setup.bash
 colcon build --cmake-clean-cache
 ```
 
-## Usage
-
-The robot can be tested in both simulated and real environments. The following steps are required to launch the robot in both environments.
-Several parameters are provided in the launch files to customize the robot's behavior and the navigation stack.
-
-The parameters for the navigation stack are collected in several YAML configuration files, inside `rm_navigation/params` folder.
-The available configuration files are:
-- `scout_amcl.yaml`: navigation parameters using AMCL for localization and SLAM toolbox for map creation, with real Scout robot
-- `scout_slam_localization.yaml`: navigation parameters using SLAM toolbox for localization only, with real Scout robot
-- `sim_lidar2d_amcl.yaml`: navigation parameters using AMCL for localization and SLAM toolbox for map creation, with simulated Scout robot and 2D lidar
-- `sim_lidar3d_amcl.yaml`: navigation parameters using AMCL for localization and SLAM toolbox for map creation, with simulated Scout robot and 3D lidar
-- `sim_slam_localization.yaml`: navigation parameters using SLAM toolbox for localization only, with simulated Scout robot and 3D lidar
-
-The parameters used for the navigation are automatically selected based on the parameters provided in the launch file.
-
-The maps created by the SLAM toolbox are saved in the `rm_navigation/maps` folder. Maps can have different formats:
-- `pgm` and `yaml` files for 2D maps created using the SLAM toolbox and deserialized using the `map_server` node, so that the map can be
-  used by the AMCL localization algorithm. The `pgm` file is a grayscale image of the map, while the `yaml` file contains the metadata of the map.
-- `data` and `posegraph` files for 2D maps created using the SLAM toolbox and serialized using the `slam_toolbox` node, so that the map can be
-  used by the SLAM toolbox algorithm for efficient localization. These files are binary files and can be visualized using the `slam_toolbox` node.
-
-### Usage in Simulation Environment with Gazebo
+## Usage in Simulation Environment with Gazebo
 
 To launch the simulation of the robot in Gazebo, along with NAV2, and the waypoint publisher node run the following commands in separate terminals:
 
@@ -85,18 +64,9 @@ ros2 run waypoint_navigation_pkg waypoint_navigation_node
 ros2 service call /start_navigation std_srvs/srv/Trigger
 ```
 
-The first command will launch the simulation of the robot in Gazebo, with the 3D lidar sensor mounted on top, and the RViz GUI (optional).
-The second command will launch the navigation stack with the specified parameters.
-
-Parameters for simulation launch file:
-- `lidar_type`: 3d for a 3D lidar (pointcloud2), 2d for a 2D lidar (laserscan)
-- `rviz`: true if launching rviz, false if launching only the gazebo simulation
-
-Parameters:
-
-- `slam`: `True` if you want to use SLAM toolbox for map creation, `False` if you want to do localization + navigation with the map already created
-- `simulation`: `true` if running in simulation with gazebo, `false` if launching the real AgileX Scout robot with real sensors
-- `localization`: choose the localization algorithm, among `amcl` and `slam_toolbox`
+The first command will launch the simulation of the robot in Gazebo, with the 2D lidar sensor mounted on top.
+The second command will launch the navigation stack, performing SLAM using AMCL, and the RViz GUI.
+The third and fourth commands spawn the waypoint publisher.
 
 If Gazebo crashes due to OGRE exception in WSL, try launching it using software acceleration instead of hardware acceleration:
 ```bash
